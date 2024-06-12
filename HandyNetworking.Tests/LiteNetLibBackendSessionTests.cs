@@ -5,7 +5,6 @@ namespace HandyNetworking.Tests;
 
 [TestClass]
 [TestCategory("LiteNetLib")]
-[TestCategory("ActualSockets")]
 public class LiteNetLibBackendSessionTests
     : SessionTester<Backend, int>
 {
