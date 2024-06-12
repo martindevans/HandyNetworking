@@ -35,7 +35,7 @@ jobs:
       run: dotnet build $SOLUTION --configuration $BUILD_CONFIG --no-restore
 
     - name: Run tests
-      run: dotnet test /p:Configuration=$BUILD_CONFIG --no-restore --no-build --verbosity normal --filter "Category!=LiteNetLib"
+      run: dotnet test /p:Configuration=$BUILD_CONFIG --no-restore --no-build --verbosity normal --filter "TestCategory!=LiteNetLib"
 
     - name: Publish
       #if: startsWith(github.ref, 'refs/heads/release')
