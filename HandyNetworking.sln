@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.34928.147
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HandyNetworking", "HandyNetworking\HandyNetworking.csproj", "{19EA386B-4877-445B-8FE8-62F95122B7AE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HandyNetworking.Tests", "HandyNetworking.Tests\HandyNetworking.Tests.csproj", "{E1C478DE-B3F3-476C-BAA2-F5A8CE68DCAD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HandyNetworking.LiteNetLibBackend", "HandyNetworking.LiteNetLibBackend\HandyNetworking.LiteNetLibBackend.csproj", "{0FEE8B24-3296-4057-B729-08057E697B1C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Demo", "Demo\Demo.csproj", "{92BB27F4-696C-4760-844B-4D9BC9F7CCF5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{19EA386B-4877-445B-8FE8-62F95122B7AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19EA386B-4877-445B-8FE8-62F95122B7AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19EA386B-4877-445B-8FE8-62F95122B7AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19EA386B-4877-445B-8FE8-62F95122B7AE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E1C478DE-B3F3-476C-BAA2-F5A8CE68DCAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1C478DE-B3F3-476C-BAA2-F5A8CE68DCAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1C478DE-B3F3-476C-BAA2-F5A8CE68DCAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1C478DE-B3F3-476C-BAA2-F5A8CE68DCAD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0FEE8B24-3296-4057-B729-08057E697B1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0FEE8B24-3296-4057-B729-08057E697B1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0FEE8B24-3296-4057-B729-08057E697B1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0FEE8B24-3296-4057-B729-08057E697B1C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{92BB27F4-696C-4760-844B-4D9BC9F7CCF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{92BB27F4-696C-4760-844B-4D9BC9F7CCF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{92BB27F4-696C-4760-844B-4D9BC9F7CCF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{92BB27F4-696C-4760-844B-4D9BC9F7CCF5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BD3CE81F-2E4A-4E6D-A308-CD7B49F78349}
+	EndGlobalSection
+EndGlobal
