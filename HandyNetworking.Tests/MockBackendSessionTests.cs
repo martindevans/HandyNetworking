@@ -3,6 +3,7 @@ using HandyNetworking.Logging;
 namespace HandyNetworking.Tests;
 
 [TestClass]
+[TestCategory("MockBackend")]
 public class MockBackendSessionTests
     : SessionTester<MockBackend, int>
 {
