@@ -9,7 +9,7 @@ using HandySerialization.Extensions;
 namespace HandyNetworking;
 
 public partial class NetworkManager<TBackend, TBackendId>
-    : INetBackendPacketListener<TBackendId>
+    : INetBackendPacketListener<TBackendId>, ISender
     where TBackend : INetBackend<TBackendId>
     where TBackendId : struct
 {
@@ -318,6 +318,10 @@ public partial class NetworkManager<TBackend, TBackendId>
             where T : struct, IByteSerializable<T>;
     }
     #endregion
+}
 
-    
+internal interface ISender
+{
+    public void Send<T>(PeerId dst, T payload, byte channel, PacketReliability reliability)
+        where T : struct, IByteSerializable<T>;
 }

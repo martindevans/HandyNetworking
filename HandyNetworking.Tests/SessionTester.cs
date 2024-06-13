@@ -85,11 +85,19 @@ public abstract class SessionTester<TBackend, TBackendPeerId>
         var session = CreateSession(10);
         try
         {
-            foreach (var peer in session)
+            foreach (var manager in session)
             {
-                Assert.IsTrue(peer.IsRunning);
-                Assert.IsTrue(peer.Statistics.PacketsReceived > 0 || peer.Statistics.PacketsSent > 0);
-                Assert.IsTrue(peer.Statistics.BytesReceived > 0 || peer.Statistics.BytesSent > 0);
+                Assert.IsTrue(manager.IsRunning);
+                Assert.IsTrue(manager.Statistics.PacketsReceived > 0 || manager.Statistics.PacketsSent > 0);
+                Assert.IsTrue(manager.Statistics.BytesReceived > 0 || manager.Statistics.BytesSent > 0);
+
+                // Check there is a single peer object with the local ID, and it has the local flag
+                var local = manager.Peers.Single(a => a.Id == manager.LocalPeerId);
+                Assert.IsTrue(local.IsLocal);
+
+                // Check every peer only has the local flag if it has the local ID
+                foreach (var peer in manager.Peers)
+                    Assert.AreEqual(peer.Id == manager.LocalPeerId, peer.IsLocal);
             }
         }
         finally

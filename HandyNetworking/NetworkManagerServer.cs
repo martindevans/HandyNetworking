@@ -34,7 +34,7 @@ public partial class NetworkManager<TBackend, TBackendId>
             _logger = logger;
             _networkManager = networkManager;
 
-            _peers.Add(new NetPeer(PeerId));
+            _peers.Add(new NetPeer(_networkManager, true, PeerId));
         }
 
         private bool TryGetPeer(PeerId peer, out TBackendId backendPeer)
@@ -97,7 +97,7 @@ public partial class NetworkManager<TBackend, TBackendId>
             Broadcast(new RemotePeerJoined(id), 1, PacketReliability.ReliableOrdered);
 
             // Store this peer in the local collection
-            var netObj = new NetPeer(id);
+            var netObj = new NetPeer(_networkManager, false, id);
             _idLookup.Add(peer, id);
             _revIdLookup.Add(id, peer);
             _peers.Add(netObj);

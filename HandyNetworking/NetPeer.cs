@@ -7,12 +7,27 @@ namespace HandyNetworking
     [DebuggerDisplay("{Id} ({Latency})")]
     public class NetPeer
     {
+        private readonly ISender _sender;
+
+        public bool IsLocal { get; }
         public PeerId Id { get; }
         public TimeSpan Latency { get; internal set; }
 
-        public NetPeer(PeerId id)
+        internal NetPeer(ISender sender, bool local, PeerId id)
         {
+            _sender = sender;
+
+            IsLocal = local;
             Id = id;
+        }
+
+        public void Send<T>(T packet, byte channel, PacketReliability reliability)
+            where T : struct, IByteSerializable<T>
+        {
+            if (IsLocal)
+                throw new InvalidOperationException("Cannot send packet to local peer");
+
+            _sender.Send(Id, packet, channel, reliability);
         }
     }
 

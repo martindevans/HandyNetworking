@@ -8,7 +8,7 @@ using Spectre.Console;
 Console.WriteLine("Hello, World!");
 
 var server = AnsiConsole.Confirm("Run As Server?");
-var port = AnsiConsole.Ask<ushort>("Port", 58534);
+var port = AnsiConsole.Ask<ushort>("Port", 61401);
 var password = AnsiConsole.Ask<string>("What's the password?", "password");
 
 var manager = new NetworkManager<Backend, int>(null, new Backend(new ConsoleLogger()));
@@ -37,7 +37,7 @@ AnsiConsole.MarkupLine("[green]Connected![/]");
 while (true)
 {
     manager.Update();
-    Console.Title = $"Status:{manager.Status} Rcv:{manager.Statistics.BytesReceived}B Send:{manager.Statistics.BytesSent}B";
+    Console.Title = $"Status:{manager.Status} Peers:{manager.Peers.Count} Rcv:{manager.Statistics.BytesReceived}B Send:{manager.Statistics.BytesSent}B";
 
     if (Console.KeyAvailable)
     {

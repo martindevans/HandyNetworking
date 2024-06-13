@@ -64,7 +64,7 @@ public partial class NetworkManager<TBackend, TBackendId>
             foreach (var netPeer in _peers)
                 if (netPeer.Id == pkt.Id)
                     return;
-            _peers.Add(new NetPeer(_id));
+            _peers.Add(new NetPeer(_networkManager, true, _id));
 
             Status = ConnectionStatus.Connected;
         }
@@ -76,7 +76,7 @@ public partial class NetworkManager<TBackend, TBackendId>
                 if (netPeer.Id == pkt.Id)
                     return;
 
-            var peer = new NetPeer(pkt.Id);
+            var peer = new NetPeer(_networkManager, false, pkt.Id);
             _peers.Add(peer);
             _networkManager.OnPeerConnected?.Invoke(peer);
         }
