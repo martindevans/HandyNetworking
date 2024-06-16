@@ -28,6 +28,7 @@ public partial class NetworkManager<TBackend, TBackendId>
         public ConnectionStatus Status { get; } = ConnectionStatus.Connected;
 
         private readonly MemoryStream _cachedMemoryStream = new(1024);
+        private readonly Dictionary<PeerId, DateTime> _lastLatencyUpdate = [ ];
 
         public ServerSessionManager(ILog logger, NetworkManager<TBackend, TBackendId> networkManager)
         {
@@ -131,8 +132,18 @@ public partial class NetworkManager<TBackend, TBackendId>
 
         void INetBackendEventListener<TBackendId>.PeerLatencyUpdate(TBackendId peerId, TimeSpan latency)
         {
+            // Skip this update if we don't know the peer
             if (!_idLookup.TryGetValue(peerId, out var id))
                 return;
+
+            // Check when we last sent a latency update for this peer
+            if (!_lastLatencyUpdate.TryGetValue(id, out var lastUpdate))
+                lastUpdate = DateTime.MinValue;
+
+            // Skip this update if it was recent
+            if (DateTime.UtcNow - lastUpdate < TimeSpan.FromSeconds(1))
+                return;
+            _lastLatencyUpdate[id] = DateTime.UtcNow;
 
             // Inform all peers about the new latency
             Broadcast(
