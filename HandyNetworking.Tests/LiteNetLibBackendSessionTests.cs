@@ -22,4 +22,23 @@ public class LiteNetLibBackendSessionTests
         // Create manager wrapping each backend "peer"
         return network.Select(a => new NetworkManager<Backend, int>(log, a.Value)).ToList();
     }
+
+    [TestMethod]
+    public void CannotConnect()
+    {
+        var network = CreateNetwork(1, out var hostAddress, out var hostPort, new MockLogger() { ThrowWarning = true });
+
+        // Start a client, ensure it connects to nowhere since the server does not exist
+        var client = network[0];
+        client.StartClient("localhost", 1234, []);
+        for (var i = 0; i < 7500; i++)
+        {
+            Thread.Sleep(10);
+            client.Update();
+
+            if (client.Status == ConnectionStatus.Disconnected)
+                break;
+        }
+        Assert.AreEqual(ConnectionStatus.Disconnected, client.Status);
+    }
 }

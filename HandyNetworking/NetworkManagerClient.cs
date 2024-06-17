@@ -149,7 +149,7 @@ public partial class NetworkManager<TBackend, TBackendId>
 
         void INetBackendEventListener<TBackendId>.PeerDisconnected(TBackendId peerId)
         {
-            _serverId = default;
+            _networkManager.Stop();
         }
 
         void INetBackendEventListener<TBackendId>.PeerLatencyUpdate(TBackendId peerId, TimeSpan latency)
