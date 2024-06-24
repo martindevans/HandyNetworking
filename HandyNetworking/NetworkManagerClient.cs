@@ -98,7 +98,7 @@ public partial class NetworkManager<TBackend, TBackendId>
             }
         }
 
-        public void Receive(PeerId sender, PacketTypes type, ref MemoryByteReader reader)
+        public void Receive(PeerId sender, TBackendId _, PacketTypes type, ref MemoryByteReader reader)
         {
             switch (type)
             {
@@ -135,6 +135,26 @@ public partial class NetworkManager<TBackend, TBackendId>
             {
                 var writer = new StreamByteWriter(_cachedMemoryStream.Clear());
                 writer.WritePacketRelayHeader(PeerId, new RelayHeader(destination, channel, reliability));
+                writer.WritePacketSerialized(PeerId, payload);
+                var span = _cachedMemoryStream.GetSpan();
+
+                _networkManager.Send(_serverId.Value, span, channel, reliability);
+            }
+        }
+
+        public void Broadcast<TPayload>(TPayload payload, byte channel, PacketReliability reliability)
+            where TPayload : struct, IByteSerializable<TPayload>
+        {
+            if (!_serverId.HasValue)
+                throw new InvalidOperationException("Cannot send packet before server connection");
+            if (Status != ConnectionStatus.Connected)
+                throw new InvalidOperationException("Cannot send packet before connected");
+
+            // Send a packet to the server, relaying to other peers. Use peer id = 0 to indicate broadcast
+            lock (_cachedMemoryStream)
+            {
+                var writer = new StreamByteWriter(_cachedMemoryStream.Clear());
+                writer.WritePacketRelayHeader(PeerId, new RelayHeader(new PeerId(0), channel, reliability));
                 writer.WritePacketSerialized(PeerId, payload);
                 var span = _cachedMemoryStream.GetSpan();
 

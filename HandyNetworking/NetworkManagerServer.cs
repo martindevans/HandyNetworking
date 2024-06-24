@@ -43,8 +43,8 @@ public partial class NetworkManager<TBackend, TBackendId>
             return _revIdLookup.TryGetValue(peer, out backendPeer);
         }
 
-        private void Broadcast<TPayload>(TPayload payload, byte channel, PacketReliability mode)
-            where TPayload : IByteSerializable<TPayload>
+        public void Broadcast<TPayload>(TPayload payload, byte channel, PacketReliability mode)
+            where TPayload : struct, IByteSerializable<TPayload>
         {
             lock (_cachedMemoryStream)
             {
@@ -153,8 +153,15 @@ public partial class NetworkManager<TBackend, TBackendId>
             );
         }
 
-        public void Receive(PeerId sender, PacketTypes type, ref MemoryByteReader reader)
+        public void Receive(PeerId _, TBackendId backendSender, PacketTypes type, ref MemoryByteReader reader)
         {
+            // Get the ID of the backend which sent this message. Ignoring the claimed PeerId to prevent spoofing.
+            if (!_idLookup.TryGetValue(backendSender, out var sender))
+            {
+                _logger.Warn($"Received packet from backend `{backendSender}`, but cannot find ID for this peer");
+                return;
+            }
+
             switch (type)
             {
                 case PacketTypes.None:
@@ -175,19 +182,19 @@ public partial class NetworkManager<TBackend, TBackendId>
                     var header = reader.Read<MemoryByteReader, RelayHeader>();
                     if (header.Destination == PeerId)
                     {
-                        if (!reader.ReadPacketHeader(out var innerType, out var innerSender))
+                        if (!reader.ReadPacketHeader(out var innerType, out var _))
                         {
                             _logger.Warn("Received packet with incorrect magic number");
                             return;
                         }
 
-                        if (innerType == PacketTypes.RelayedSingle)
+                        if (innerType is PacketTypes.RelayedSingle or PacketTypes.RelayedBroadcast)
                         {
-                            _logger.Warn("Received RelayedSingle packet which contained another RelayedSingle packet");
+                            _logger.Warn("Received RelayedSingle packet which contained another RelayedSingle/RelayedBroadcast packet");
                             return;
                         }
 
-                        Receive(innerSender, innerType, ref reader);
+                        Receive(sender, backendSender, innerType, ref reader);
                     }
                     else
                     {
@@ -197,6 +204,32 @@ public partial class NetworkManager<TBackend, TBackendId>
                         var unread = reader.ReadBytes(checked((int)reader.UnreadBytes));
                         _networkManager.Send(backendDst, unread, header.Channel, header.Reliability);
                     }
+
+                    break;
+                }
+
+                case PacketTypes.RelayedBroadcast:
+                {
+                    var header = reader.Read<MemoryByteReader, RelayHeader>();
+                    if (!reader.ReadPacketHeader(out var innerType, out var innerSender))
+                    {
+                        _logger.Warn("Received packet with incorrect magic number");
+                        return;
+                    }
+
+                    if (innerType is PacketTypes.RelayedSingle or PacketTypes.RelayedBroadcast)
+                    {
+                        _logger.Warn("Received RelayedBroadcast packet which contained another RelayedSingle/RelayedBroadcast packet");
+                        return;
+                    }
+
+                    // Send to everyone else
+                    var unread = reader.ReadBytes(checked((int)reader.UnreadBytes));
+                    foreach (var kvp in _revIdLookup)
+                        _networkManager.Send(kvp.Value, unread, header.Channel, header.Reliability);
+
+                    // Receive locally
+                    Receive(sender, backendSender, type, ref reader);
 
                     break;
                 }

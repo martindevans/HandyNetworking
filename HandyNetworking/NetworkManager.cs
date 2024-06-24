@@ -9,7 +9,7 @@ using HandySerialization.Extensions;
 namespace HandyNetworking;
 
 public partial class NetworkManager<TBackend, TBackendId>
-    : INetBackendPacketListener<TBackendId>, ISender
+    : INetBackendPacketListener<TBackendId>, ISender, IReceiver, IDisposable
     where TBackend : INetBackend<TBackendId>
     where TBackendId : struct
 {
@@ -105,6 +105,12 @@ public partial class NetworkManager<TBackend, TBackendId>
         _session!.Send(dst, payload, channel, reliability);
     }
 
+    public void Broadcast<T>(T payload, byte channel, PacketReliability reliability)
+        where T : struct, IByteSerializable<T>
+    {
+        _session!.Broadcast(payload, channel, reliability);
+    }
+
     private void Send(TBackendId dst, ReadOnlySpan<byte> payload, byte channel, PacketReliability reliability)
     {
         _backend.Send(dst, payload, channel, reliability);
@@ -127,7 +133,7 @@ public partial class NetworkManager<TBackend, TBackendId>
             return;
         }
 
-        _session.Receive(sender, type, ref reader);
+        _session.Receive(sender, backendSender, type, ref reader);
     }
 
     private interface IPacketHandler
@@ -312,16 +318,34 @@ public partial class NetworkManager<TBackend, TBackendId>
 
         ConnectionStatus Status { get; }
 
-        void Receive(PeerId sender, PacketTypes type, ref MemoryByteReader reader);
+        void Receive(PeerId headerSender, TBackendId backendSender, PacketTypes type, ref MemoryByteReader reader);
 
         void Send<T>(PeerId destination, T payload, byte channel, PacketReliability reliability)
             where T : struct, IByteSerializable<T>;
+
+        void Broadcast<T>(T payload, byte channel, PacketReliability reliability)
+            where T : struct, IByteSerializable<T>;
     }
     #endregion
+
+    public void Dispose()
+    {
+        if (_backend is IDisposable d)
+            d.Dispose();
+    }
 }
 
-internal interface ISender
+public interface ISender
 {
     public void Send<T>(PeerId dst, T payload, byte channel, PacketReliability reliability)
         where T : struct, IByteSerializable<T>;
+
+    public void Broadcast<T>(T payload, byte channel, PacketReliability reliability)
+        where T : struct, IByteSerializable<T>;
+}
+
+public interface IReceiver
+{
+    public IDisposable Subscribe<TPayload>(Action<PeerId, TPayload> callback)
+        where TPayload : struct, IByteSerializable<TPayload>;
 }
