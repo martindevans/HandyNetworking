@@ -116,15 +116,25 @@ public abstract class SessionTester<TBackend, TBackendPeerId>
             for (var i = 0; i < session.Count; i++)
                 session[i].Subscribe<TestPacket2>((_, _) => Assert.Fail("Received TestPacket2"));
 
+            var serverIdx = session.FindIndex(a => a.IsServer);
+
             for (var i = 0; i < session.Count; i++)
             {
-                for (var j = 0; j < session.Count; j++)
+                if (session[i].IsServer)
                 {
-                    if (i == j)
-                        continue;
-
-                    SendPair(i, j);
+                    for (var j = 0; j < session.Count; j++)
+                    {
+                        if (i == j)
+                            continue;
+                        SendPair(i, j);
+                    }
                 }
+                else
+                {
+                    SendPair(i, serverIdx);
+                }
+
+                
             }
         }
         finally

@@ -177,37 +177,6 @@ public partial class NetworkManager<TBackend, TBackendId>
                     break;
                 }
 
-                case PacketTypes.RelayedSingle:
-                {
-                    var header = reader.Read<MemoryByteReader, RelayHeader>();
-                    if (header.Destination == PeerId)
-                    {
-                        if (!reader.ReadPacketHeader(out var innerType, out var _))
-                        {
-                            _logger.Warn("Received packet with incorrect magic number");
-                            return;
-                        }
-
-                        if (innerType is PacketTypes.RelayedSingle)
-                        {
-                            _logger.Warn("Received RelayedSingle packet which contained another RelayedSingle/RelayedBroadcast packet");
-                            return;
-                        }
-
-                        Receive(sender, backendSender, innerType, ref reader);
-                    }
-                    else
-                    {
-                        if (!TryGetPeer(header.Destination, out var backendDst))
-                            return;
-
-                        var unread = reader.ReadBytes(checked((int)reader.UnreadBytes));
-                        _networkManager.Send(backendDst, unread, header.Channel, header.Reliability);
-                    }
-
-                    break;
-                }
-
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type));
             }

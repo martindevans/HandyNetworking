@@ -102,7 +102,10 @@ public partial class NetworkManager<TBackend, TBackendId>
     public void Send<T>(PeerId dst, T payload, byte channel, PacketReliability reliability)
         where T : struct, IByteSerializable<T>
     {
-        _session!.Send(dst, payload, channel, reliability);
+        if (_session == null)
+            throw new InvalidOperationException("Cannot send packet when not connected");
+
+        _session.Send(dst, payload, channel, reliability);
     }
 
     private void Send(TBackendId dst, ReadOnlySpan<byte> payload, byte channel, PacketReliability reliability)

@@ -111,10 +111,6 @@ public partial class NetworkManager<TBackend, TBackendId>
                     _networkManager._packetManager.Receive(sender, typeId, reader);
                     break;
 
-                case PacketTypes.RelayedSingle:
-                    _logger.Error("Client peer received PacketType `RelayedSingle`");
-                    break;
-
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type));
             }
@@ -127,14 +123,13 @@ public partial class NetworkManager<TBackend, TBackendId>
                 throw new InvalidOperationException("Cannot send packet before server connection");
             if (Status != ConnectionStatus.Connected)
                 throw new InvalidOperationException("Cannot send packet before connected");
-            if (destination == PeerId)
-                return;
+            if (destination != new PeerId(1))
+                throw new ArgumentException("Client can only send packets to server");
 
             // Send a packet to the server, relaying this packet to it's final destination.
             lock (_cachedMemoryStream)
             {
                 var writer = new StreamByteWriter(_cachedMemoryStream.Clear());
-                writer.WritePacketRelayHeader(PeerId, new RelayHeader(destination, channel, reliability));
                 writer.WritePacketSerialized(PeerId, payload);
                 var span = _cachedMemoryStream.GetSpan();
 

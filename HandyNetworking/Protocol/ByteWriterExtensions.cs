@@ -37,11 +37,4 @@ internal static class ByteWriterExtensions
         writer.Write(UniversalTypeId<TPayload>.Id);
         writer.Write(payload);
     }
-
-    public static void WritePacketRelayHeader<TWriter>(this ref TWriter writer, PeerId sender, RelayHeader relayInfo)
-        where TWriter : struct, IByteWriter
-    {
-        writer.WritePacketHeader(PacketTypes.RelayedSingle, sender);
-        writer.Write(relayInfo);
-    }
 }
