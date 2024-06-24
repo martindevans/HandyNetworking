@@ -188,7 +188,7 @@ public partial class NetworkManager<TBackend, TBackendId>
                             return;
                         }
 
-                        if (innerType is PacketTypes.RelayedSingle or PacketTypes.RelayedBroadcast)
+                        if (innerType is PacketTypes.RelayedSingle)
                         {
                             _logger.Warn("Received RelayedSingle packet which contained another RelayedSingle/RelayedBroadcast packet");
                             return;
@@ -204,32 +204,6 @@ public partial class NetworkManager<TBackend, TBackendId>
                         var unread = reader.ReadBytes(checked((int)reader.UnreadBytes));
                         _networkManager.Send(backendDst, unread, header.Channel, header.Reliability);
                     }
-
-                    break;
-                }
-
-                case PacketTypes.RelayedBroadcast:
-                {
-                    var header = reader.Read<MemoryByteReader, RelayHeader>();
-                    if (!reader.ReadPacketHeader(out var innerType, out var innerSender))
-                    {
-                        _logger.Warn("Received packet with incorrect magic number");
-                        return;
-                    }
-
-                    if (innerType is PacketTypes.RelayedSingle or PacketTypes.RelayedBroadcast)
-                    {
-                        _logger.Warn("Received RelayedBroadcast packet which contained another RelayedSingle/RelayedBroadcast packet");
-                        return;
-                    }
-
-                    // Send to everyone else
-                    var unread = reader.ReadBytes(checked((int)reader.UnreadBytes));
-                    foreach (var kvp in _revIdLookup)
-                        _networkManager.Send(kvp.Value, unread, header.Channel, header.Reliability);
-
-                    // Receive locally
-                    Receive(sender, backendSender, type, ref reader);
 
                     break;
                 }

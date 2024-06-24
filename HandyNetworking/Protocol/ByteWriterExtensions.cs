@@ -44,11 +44,4 @@ internal static class ByteWriterExtensions
         writer.WritePacketHeader(PacketTypes.RelayedSingle, sender);
         writer.Write(relayInfo);
     }
-
-    public static void WritePacketRelayBroadcastHeader<TWriter>(this ref TWriter writer, PeerId sender, RelayHeader relayInfo)
-        where TWriter : struct, IByteWriter
-    {
-        writer.WritePacketHeader(PacketTypes.RelayedBroadcast, sender);
-        writer.Write(relayInfo);
-    }
 }

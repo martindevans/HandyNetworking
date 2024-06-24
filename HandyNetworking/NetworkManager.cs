@@ -105,12 +105,6 @@ public partial class NetworkManager<TBackend, TBackendId>
         _session!.Send(dst, payload, channel, reliability);
     }
 
-    public void Broadcast<T>(T payload, byte channel, PacketReliability reliability)
-        where T : struct, IByteSerializable<T>
-    {
-        _session!.Broadcast(payload, channel, reliability);
-    }
-
     private void Send(TBackendId dst, ReadOnlySpan<byte> payload, byte channel, PacketReliability reliability)
     {
         _backend.Send(dst, payload, channel, reliability);
@@ -322,9 +316,6 @@ public partial class NetworkManager<TBackend, TBackendId>
 
         void Send<T>(PeerId destination, T payload, byte channel, PacketReliability reliability)
             where T : struct, IByteSerializable<T>;
-
-        void Broadcast<T>(T payload, byte channel, PacketReliability reliability)
-            where T : struct, IByteSerializable<T>;
     }
     #endregion
 
@@ -338,9 +329,6 @@ public partial class NetworkManager<TBackend, TBackendId>
 public interface ISender
 {
     public void Send<T>(PeerId dst, T payload, byte channel, PacketReliability reliability)
-        where T : struct, IByteSerializable<T>;
-
-    public void Broadcast<T>(T payload, byte channel, PacketReliability reliability)
         where T : struct, IByteSerializable<T>;
 }
 
