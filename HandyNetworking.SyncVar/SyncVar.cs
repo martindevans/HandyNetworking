@@ -1,41 +1,48 @@
-﻿namespace HandyNetworking.SyncVar
+﻿using HandySerialization;
+
+namespace HandyNetworking.SyncVar
 {
-    /// <summary>
-    /// A SyncVar is a value with a single owner. Only the owner can change the value.
-    /// Anyone else can try to set the value, and the owner will receive a request.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public class SyncVar<T>
+    public abstract class SyncVar<TRequestChange, TSetValue, T>
+        : IDisposable
+        where TRequestChange : struct, IByteSerializable<TRequestChange>
+        where TSetValue : struct, IByteSerializable<TSetValue>
     {
+        private readonly bool _isServer;
         private readonly ISender _sender;
         private readonly IReceiver _receiver;
+
+        private readonly byte _channel;
         private readonly PacketReliability _reliability;
 
-        public SyncVar(T value, ISender sender, IReceiver receiver, PacketReliability reliability = PacketReliability.ReliableSequenced)
+        private IDisposable? _requestSub;
+
+        public SyncVar(bool isServer, ISender sender, IReceiver receiver, byte channel, PacketReliability reliability = PacketReliability.ReliableSequenced)
         {
+            _isServer = isServer;
             _sender = sender;
             _receiver = receiver;
+            _channel = channel;
             _reliability = reliability;
+
+            _requestSub = receiver.Subscribe<TRequestChange>(ReceiveRequest);
         }
 
-        /// <summary>
-        /// Indicates if this sync var is owned by the local peer and can be changed
-        /// </summary>
-        public bool IsLocallyOwned { get; private set; }
-
-        /// <summary>
-        /// Get the latest value from this sync var
-        /// </summary>
-        public T Value
+        private void ReceiveRequest(PeerId sender, TRequestChange request)
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            //if (!_isServer)
+            //    return;
+
+            //if (TryCreateStateChange(request, out var change))
+            //{
+            //    ApplyStateChange(change);
+            //    _sender.Send(, change, _channel, _reliability);
+            //}
+        }
+
+        public void Dispose()
+        {
+            _requestSub?.Dispose();
+            _requestSub = null;
         }
     }
 }

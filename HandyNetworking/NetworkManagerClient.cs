@@ -67,9 +67,9 @@ public partial class NetworkManager<TBackend, TBackendId>
 
             var peer = new NetPeer(_networkManager, true, _id);
             _peers.Add(peer);
-            _networkManager.OnPeerConnected?.Invoke(peer);
-
             Status = ConnectionStatus.Connected;
+
+            _networkManager.OnPeerConnected?.Invoke(peer);
         }
 
         private void OnRemotePeerJoined(PeerId sender, RemotePeerJoined pkt)
